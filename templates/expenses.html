@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="text-primary">My Expenses</h3>
+            <a href="/add-expense" class="btn btn-primary">+ Add Expense</a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if expenses %}
+        <div class="card shadow">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in expenses %}
+                        <tr>
+                            <td>{{ expense.date }}</td>
+                            <td><span class="badge bg-primary">{{ expense.category }}</span></td>
+                            <td>{{ expense.description or '-' }}</td>
+                            <td><strong>₹{{ expense.amount }}</strong></td>
+                            <td>
+                                <a href="/edit-expense/{{ expense.id }}" class="btn btn-warning btn-sm me-1">Edit</a>
+                                <a href="/delete-expense/{{ expense.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this expense?')">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="3"><strong>Total</strong></td>
+                            <td colspan="2"><strong>₹{{ total }}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center mt-5">
+            <h5 class="text-muted">No expenses added yet.</h5>
+            <a href="/add-expense" class="btn btn-primary mt-3">Add Your First Expense</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
