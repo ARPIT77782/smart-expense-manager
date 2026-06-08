@@ -1,50 +1,48 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<div class="row justify-content-center mt-4">
+<div class="page-header">
+    <div class="page-title">Edit Expense</div>
+    <div class="page-subtitle">Update your expense details</div>
+</div>
+
+<div class="row justify-content-center">
     <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-body p-4">
-                <h3 class="text-primary mb-4">Edit Expense</h3>
-
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}">{{ message }}</div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-
-                <form method="POST">
-                    <div class="mb-3">
-                        <label class="form-label">Amount (₹)</label>
-                        <input type="number" name="amount" step="0.01" class="form-control" value="{{ expense.amount }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Category</label>
-                        <select name="category" class="form-select" required>
-                            <option value="Food" {% if expense.category == 'Food' %}selected{% endif %}>Food & Dining</option>
-                            <option value="Transport" {% if expense.category == 'Transport' %}selected{% endif %}>Transport</option>
-                            <option value="Shopping" {% if expense.category == 'Shopping' %}selected{% endif %}>Shopping</option>
-                            <option value="Bills" {% if expense.category == 'Bills' %}selected{% endif %}>Bills & Utilities</option>
-                            <option value="Entertainment" {% if expense.category == 'Entertainment' %}selected{% endif %}>Entertainment</option>
-                            <option value="Health" {% if expense.category == 'Health' %}selected{% endif %}>Health & Medical</option>
-                            <option value="Education" {% if expense.category == 'Education' %}selected{% endif %}>Education</option>
-                            <option value="Other" {% if expense.category == 'Other' %}selected{% endif %}>Other</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Date</label>
-                        <input type="date" name="date" class="form-control" value="{{ expense.date }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description (optional)</label>
-                        <input type="text" name="description" class="form-control" value="{{ expense.description or '' }}">
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Update Expense</button>
-                    <a href="/expenses" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
-                </form>
-            </div>
+        <div class="form-card">
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="custom-label">Amount (₹)</label>
+                    <input type="number" name="amount" step="0.01" class="custom-input" value="{{ expense.amount }}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="custom-label">Category</label>
+                    <select name="category" class="custom-input" required>
+                        <option value="Food" {% if expense.category == 'Food' %}selected{% endif %}>Food & Dining</option>
+                        <option value="Transport" {% if expense.category == 'Transport' %}selected{% endif %}>Transport</option>
+                        <option value="Shopping" {% if expense.category == 'Shopping' %}selected{% endif %}>Shopping</option>
+                        <option value="Bills" {% if expense.category == 'Bills' %}selected{% endif %}>Bills & Utilities</option>
+                        <option value="Entertainment" {% if expense.category == 'Entertainment' %}selected{% endif %}>Entertainment</option>
+                        <option value="Health" {% if expense.category == 'Health' %}selected{% endif %}>Health & Medical</option>
+                        <option value="Education" {% if expense.category == 'Education' %}selected{% endif %}>Education</option>
+                        <option value="Other" {% if expense.category == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="custom-label">Date</label>
+                    <input type="date" name="date" class="custom-input" value="{{ expense.date }}" required>
+                </div>
+                <div class="mb-4">
+                    <label class="custom-label">Description (optional)</label>
+                    <input type="text" name="description" class="custom-input" value="{{ expense.description or '' }}">
+                </div>
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn-teal" style="flex:1; justify-content:center; padding:12px;">
+                        <i class="ti ti-check"></i> Update Expense
+                    </button>
+                    <a href="/expenses" class="btn-outline-custom" style="flex:1; justify-content:center; padding:12px;">
+                        Cancel
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 </div>

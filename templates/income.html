@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <div class="page-title">Income</div>
+        <div class="page-subtitle">Track all your income sources</div>
+    </div>
+    <a href="/add-income" class="btn-teal"><i class="ti ti-plus"></i> Add Income</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon icon-teal"><i class="ti ti-wallet"></i></div>
+            <div class="stat-label">Total Income</div>
+            <div class="stat-value text-teal">₹{{ total }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon icon-blue"><i class="ti ti-list"></i></div>
+            <div class="stat-label">Total Transactions</div>
+            <div class="stat-value text-blue">{{ incomes|length }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon icon-purple"><i class="ti ti-calendar"></i></div>
+            <div class="stat-label">Average Income</div>
+            <div class="stat-value" style="color:#9333ea;">
+                ₹{{ (total / incomes|length)|round(2) if incomes|length > 0 else 0 }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header">
+        <div class="table-title">All Income</div>
+        <a href="/add-income" class="btn-teal"><i class="ti ti-plus"></i> Add Income</a>
+    </div>
+    <table class="custom-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Source</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for income in incomes %}
+            <tr>
+                <td>{{ income.date }}</td>
+                <td><span class="badge-cat badge-food">{{ income.source }}</span></td>
+                <td>{{ income.description or '-' }}</td>
+                <td class="text-teal">+₹{{ income.amount }}</td>
+                <td>
+                    <a href="/delete-income/{{ income.id }}" onclick="return confirm('Delete this income?')"
+                       style="color:#ff6363; font-size:18px;"><i class="ti ti-trash"></i></a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" style="text-align:center; color:#718096; padding:2rem;">No income added yet</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

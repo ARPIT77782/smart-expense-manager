@@ -1,63 +1,124 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="text-primary">My Expenses</h3>
-            <a href="/add-expense" class="btn btn-primary">+ Add Expense</a>
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <div class="page-title">Expenses</div>
+        <div class="page-subtitle">Manage and track all your expenses</div>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/export-csv" class="btn-outline-custom"><i class="ti ti-download"></i> Export CSV</a>
+        <a href="/add-expense" class="btn-teal"><i class="ti ti-plus"></i> Add Expense</a>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon icon-red"><i class="ti ti-trending-down"></i></div>
+            <div class="stat-label">Total Expenses</div>
+            <div class="stat-value text-red">₹{{ total }}</div>
         </div>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        {% if expenses %}
-        <div class="card shadow">
-            <div class="card-body p-0">
-                <table class="table table-hover mb-0">
-                    <thead class="table-primary">
-                        <tr>
-                            <th>Date</th>
-                            <th>Category</th>
-                            <th>Description</th>
-                            <th>Amount</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for expense in expenses %}
-                        <tr>
-                            <td>{{ expense.date }}</td>
-                            <td><span class="badge bg-primary">{{ expense.category }}</span></td>
-                            <td>{{ expense.description or '-' }}</td>
-                            <td><strong>₹{{ expense.amount }}</strong></td>
-                            <td>
-                                <a href="/edit-expense/{{ expense.id }}" class="btn btn-warning btn-sm me-1">Edit</a>
-                                <a href="/delete-expense/{{ expense.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this expense?')">Delete</a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                    <tfoot class="table-light">
-                        <tr>
-                            <td colspan="3"><strong>Total</strong></td>
-                            <td colspan="2"><strong>₹{{ total }}</strong></td>
-                        </tr>
-                    </tfoot>
-                </table>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon icon-blue"><i class="ti ti-list"></i></div>
+            <div class="stat-label">Total Transactions</div>
+            <div class="stat-value text-blue">{{ expenses|length }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon icon-purple"><i class="ti ti-calculator"></i></div>
+            <div class="stat-label">Average Expense</div>
+            <div class="stat-value" style="color:#9333ea;">
+                ₹{{ (total / expenses|length)|round(2) if expenses|length > 0 else 0 }}
             </div>
         </div>
-        {% else %}
-        <div class="text-center mt-5">
-            <h5 class="text-muted">No expenses added yet.</h5>
-            <a href="/add-expense" class="btn btn-primary mt-3">Add Your First Expense</a>
-        </div>
-        {% endif %}
     </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="chart-card mb-4">
+    <form method="GET" action="/expenses">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-6">
+                <label class="custom-label">Search by description</label>
+                <input type="text" name="search" class="custom-input" placeholder="Search expenses..." value="{{ search }}">
+            </div>
+            <div class="col-md-4">
+                <label class="custom-label">Filter by category</label>
+                <select name="category" class="custom-input">
+                    <option value="">All Categories</option>
+                    <option value="Food" {% if category_filter == 'Food' %}selected{% endif %}>Food & Dining</option>
+                    <option value="Transport" {% if category_filter == 'Transport' %}selected{% endif %}>Transport</option>
+                    <option value="Shopping" {% if category_filter == 'Shopping' %}selected{% endif %}>Shopping</option>
+                    <option value="Bills" {% if category_filter == 'Bills' %}selected{% endif %}>Bills & Utilities</option>
+                    <option value="Entertainment" {% if category_filter == 'Entertainment' %}selected{% endif %}>Entertainment</option>
+                    <option value="Health" {% if category_filter == 'Health' %}selected{% endif %}>Health & Medical</option>
+                    <option value="Education" {% if category_filter == 'Education' %}selected{% endif %}>Education</option>
+                    <option value="Other" {% if category_filter == 'Other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn-teal w-100" style="justify-content:center; padding:10px;">
+                    <i class="ti ti-search"></i> Search
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Expenses Table -->
+<div class="table-card">
+    <div class="table-header">
+        <div class="table-title">All Expenses</div>
+        <div style="font-size:13px; color:#718096;">{{ expenses|length }} records found</div>
+    </div>
+    <table class="custom-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expenses %}
+            <tr>
+                <td>{{ expense.date }}</td>
+                <td><span class="badge-cat badge-{{ expense.category.lower() }}">{{ expense.category }}</span></td>
+                <td>{{ expense.description or '-' }}</td>
+                <td class="text-red">-₹{{ expense.amount }}</td>
+                <td>
+                    <a href="/edit-expense/{{ expense.id }}" style="color:#0099ff; font-size:18px; margin-right:10px;">
+                        <i class="ti ti-edit"></i>
+                    </a>
+                    <a href="/delete-expense/{{ expense.id }}" onclick="return confirm('Delete this expense?')"
+                       style="color:#ff6363; font-size:18px;">
+                        <i class="ti ti-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align:center; color:#718096; padding:3rem;">
+                    No expenses found. <a href="/add-expense" style="color:#00d4aa;">Add one now!</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        {% if expenses %}
+        <tfoot>
+            <tr>
+                <td colspan="3" style="padding:0.875rem 1.25rem; color:#718096; font-size:13px;"><strong style="color:#e2e8f0;">Total</strong></td>
+                <td style="padding:0.875rem 1.25rem;" class="text-red"><strong>-₹{{ total }}</strong></td>
+                <td></td>
+            </tr>
+        </tfoot>
+        {% endif %}
+    </table>
 </div>
 {% endblock %}

@@ -2,121 +2,226 @@
 
 {% block content %}
 
-<div class="row mt-4 mb-3">
-    <div class="col-12">
-        <h3 class="text-primary">Welcome back, {{ session['username'] }}!</h3>
-        <p class="text-muted">Here is your expense summary</p>
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <div class="page-title">Dashboard</div>
+        <div class="page-subtitle">Welcome back, {{ session['username'] }}! Here's your financial overview.</div>
     </div>
+    <a href="/add-expense" class="btn-teal"><i class="ti ti-plus"></i> Add Expense</a>
 </div>
 
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card shadow-sm text-center p-3">
-            <p class="text-muted mb-1">Total Spent</p>
-            <h3 class="text-danger">₹{{ total }}</h3>
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon icon-teal"><i class="ti ti-wallet"></i></div>
+            <div class="stat-label">Total Income</div>
+            <div class="stat-value text-teal">₹{{ total_income }}</div>
+            <div class="stat-sub" style="color:#718096;">This month: ₹{{ month_income }}</div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card shadow-sm text-center p-3">
-            <p class="text-muted mb-1">Total Transactions</p>
-            <h3 class="text-primary">{{ count }}</h3>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon icon-red"><i class="ti ti-trending-down"></i></div>
+            <div class="stat-label">Total Expenses</div>
+            <div class="stat-value text-red">₹{{ total_expense }}</div>
+            <div class="stat-sub" style="color:#718096;">This month: ₹{{ month_expense }}</div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card shadow-sm text-center p-3">
-            <p class="text-muted mb-1">Categories Used</p>
-            <h3 class="text-success">{{ categories|length }}</h3>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon icon-blue"><i class="ti ti-piggy-bank"></i></div>
+            <div class="stat-label">Total Savings</div>
+            <div class="stat-value text-blue">₹{{ savings }}</div>
+            <div class="stat-sub" style="color:#718096;">Savings rate: {{ savings_rate }}%</div>
         </div>
     </div>
-</div>
-
-<div class="row mb-4">
-    <div class="col-md-7">
-        <div class="card shadow-sm p-3">
-            <h5 class="mb-3">Spending by Category</h5>
-            <canvas id="barChart"></canvas>
-        </div>
-    </div>
-    <div class="col-md-5">
-        <div class="card shadow-sm p-3">
-            <h5 class="mb-3">Category Split</h5>
-            <canvas id="pieChart"></canvas>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0">Recent Transactions</h5>
-                    <a href="/expenses" class="btn btn-sm btn-outline-primary">View All</a>
-                </div>
-                {% if recent %}
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Date</th>
-                            <th>Category</th>
-                            <th>Description</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for expense in recent %}
-                        <tr>
-                            <td>{{ expense.date }}</td>
-                            <td><span class="badge bg-primary">{{ expense.category }}</span></td>
-                            <td>{{ expense.description or '-' }}</td>
-                            <td><strong class="text-danger">₹{{ expense.amount }}</strong></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <p class="text-muted text-center">No expenses yet. <a href="/add-expense">Add one now!</a></p>
-                {% endif %}
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon icon-orange"><i class="ti ti-target"></i></div>
+            <div class="stat-label">Monthly Budget</div>
+            <div class="stat-value" style="color:#ffa500;">₹{{ budget }}</div>
+            <div class="stat-sub {% if budget_left < 0 %}text-red{% else %}text-teal{% endif %}">
+                {% if budget > 0 %}Left: ₹{{ budget_left }}{% else %}Not set{% endif %}
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Budget Progress -->
+{% if budget > 0 %}
+<div class="chart-card mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="chart-title">Monthly Budget Progress</div>
+        <div style="font-size:13px; color:#718096;">₹{{ month_expense }} / ₹{{ budget }}</div>
+    </div>
+    <div class="progress-custom">
+        <div class="progress-fill" style="width: {{ [[(month_expense / budget * 100), 0]|max, 100]|min }}%"></div>
+    </div>
+    <div style="font-size:12px; color:#718096; margin-top:6px;">
+        {% if budget_left < 0 %}
+            <span class="text-red">Over budget by ₹{{ (budget_left * -1) }}</span>
+        {% else %}
+            <span class="text-teal">₹{{ budget_left }} remaining</span>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Charts Row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-8">
+        <div class="chart-card">
+            <div class="chart-title">Monthly Spending Trend</div>
+            <canvas id="lineChart" height="100"></canvas>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="chart-card">
+            <div class="chart-title">Spending by Category</div>
+            <canvas id="doughnutChart" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Bar Chart -->
+<div class="chart-card mb-4">
+    <div class="chart-title">Category Breakdown This Month</div>
+    <canvas id="barChart" height="80"></canvas>
+</div>
+
+<!-- Recent Transactions -->
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="table-card">
+            <div class="table-header">
+                <div class="table-title">Recent Expenses</div>
+                <a href="/expenses" class="btn-outline-custom">View All</a>
+            </div>
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in recent_expenses %}
+                    <tr>
+                        <td>{{ e.date }}</td>
+                        <td><span class="badge-cat badge-{{ e.category.lower() }}">{{ e.category }}</span></td>
+                        <td>{{ e.description or '-' }}</td>
+                        <td class="text-red">-₹{{ e.amount }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" style="text-align:center; color:#718096; padding:2rem;">No expenses yet</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="table-card">
+            <div class="table-header">
+                <div class="table-title">Recent Income</div>
+                <a href="/income" class="btn-outline-custom">View All</a>
+            </div>
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Source</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in recent_incomes %}
+                    <tr>
+                        <td>{{ i.date }}</td>
+                        <td><span class="badge-cat badge-food">{{ i.source }}</span></td>
+                        <td>{{ i.description or '-' }}</td>
+                        <td class="text-teal">+₹{{ i.amount }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" style="text-align:center; color:#718096; padding:2rem;">No income yet</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const categories = {{ categories | tojson }};
-    const amounts = {{ amounts | tojson }};
-    const colors = ['#378ADD','#1D9E75','#7F77DD','#EF9F27','#D85A30','#D4537E','#639922','#888780'];
+const categories = {{ categories | tojson }};
+const amounts = {{ amounts | tojson }};
+const monthlyLabels = {{ monthly_labels | tojson }};
+const monthlyAmounts = {{ monthly_amounts | tojson }};
+const colors = ['#00d4aa','#0099ff','#9333ea','#ffa500','#ff6363','#ff6b9d','#63b3ed','#718096'];
 
-    new Chart(document.getElementById('barChart'), {
-        type: 'bar',
-        data: {
-            labels: categories,
-            datasets: [{
-                label: 'Amount (₹)',
-                data: amounts,
-                backgroundColor: colors
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } }
-        }
-    });
+Chart.defaults.color = '#718096';
+Chart.defaults.borderColor = '#2d3748';
 
-    new Chart(document.getElementById('pieChart'), {
-        type: 'doughnut',
-        data: {
-            labels: categories,
-            datasets: [{
-                data: amounts,
-                backgroundColor: colors
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { position: 'bottom' } }
+new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: {
+        labels: monthlyLabels,
+        datasets: [{
+            label: 'Monthly Spending',
+            data: monthlyAmounts,
+            borderColor: '#00d4aa',
+            backgroundColor: 'rgba(0,212,170,0.1)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: '#00d4aa',
+            pointRadius: 5
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: { color: '#2d3748' } },
+            y: { grid: { color: '#2d3748' } }
         }
-    });
+    }
+});
+
+new Chart(document.getElementById('doughnutChart'), {
+    type: 'doughnut',
+    data: {
+        labels: categories,
+        datasets: [{ data: amounts, backgroundColor: colors, borderWidth: 0 }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { padding: 15, font: { size: 11 } } } },
+        cutout: '70%'
+    }
+});
+
+new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+        labels: categories,
+        datasets: [{
+            label: 'Amount (₹)',
+            data: amounts,
+            backgroundColor: colors,
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: { display: false } },
+            y: { grid: { color: '#2d3748' } }
+        }
+    }
+});
 </script>
 {% endblock %}

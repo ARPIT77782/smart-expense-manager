@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header">
+    <div class="page-title">Add Income</div>
+    <div class="page-subtitle">Record a new income source</div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="form-card">
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="custom-label">Amount (₹)</label>
+                    <input type="number" name="amount" step="0.01" class="custom-input" placeholder="Enter amount" required>
+                </div>
+                <div class="mb-3">
+                    <label class="custom-label">Source</label>
+                    <select name="source" class="custom-input" required>
+                        <option value="">Select source</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Freelance">Freelance</option>
+                        <option value="Business">Business</option>
+                        <option value="Investment">Investment</option>
+                        <option value="Gift">Gift</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="custom-label">Date</label>
+                    <input type="date" name="date" class="custom-input" required>
+                </div>
+                <div class="mb-4">
+                    <label class="custom-label">Description (optional)</label>
+                    <input type="text" name="description" class="custom-input" placeholder="e.g. Monthly salary">
+                </div>
+                <button type="submit" class="btn-teal w-100" style="justify-content:center; padding:12px;">
+                    <i class="ti ti-plus"></i> Add Income
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

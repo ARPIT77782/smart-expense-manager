@@ -1,32 +1,39 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-4">
-        <div class="card shadow">
-            <div class="card-body p-4">
-                <h3 class="text-center text-primary mb-4">Login</h3>
+<div style="min-height: 90vh; display: flex; align-items: center; justify-content: center;">
+    <div style="width: 100%; max-width: 420px;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #00d4aa, #0099ff); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin: 0 auto 1rem;">💰</div>
+            <h2 style="font-size: 22px; font-weight: 600; color: #e2e8f0;">Welcome back</h2>
+            <p style="font-size: 13px; color: #718096; margin-top: 4px;">Login to your ExpenseIQ account</p>
+        </div>
 
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}">{{ message }}</div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
+        <div class="form-card">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert-custom alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
-                <form method="POST">
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Login</button>
-                </form>
-                <p class="text-center mt-3">Don't have an account? <a href="/register">Register here</a></p>
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="custom-label">Email address</label>
+                    <input type="email" name="email" class="custom-input" placeholder="Enter your email" required>
+                </div>
+                <div class="mb-4">
+                    <label class="custom-label">Password</label>
+                    <input type="password" name="password" class="custom-input" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn-teal w-100" style="justify-content: center; padding: 12px; font-size: 14px;">
+                    Login to Dashboard
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 1.5rem; font-size: 13px; color: #718096;">
+                Don't have an account?
+                <a href="/register" style="color: #00d4aa; text-decoration: none;">Register here</a>
             </div>
         </div>
     </div>
